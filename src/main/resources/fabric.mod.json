@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "limited_life_v2",
+  "version": "${version}",
+  "name": "Limited life v2",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/limited_life_v2/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.Douwe.limited_life_v2.client.Limited_life_v2DataGenerator"
+    ],
+    "main": [
+      "org.Douwe.limited_life_v2.Limited_life_v2"
+    ]
+  },
+  "mixins": [
+    "limited_life_v2.mixins.json",
+    {
+      "config": "limited_life_v2.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
