@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#S#",
+        "SGS",
+        "#S#"
+    ],
+    "key": {
+        "#": "minecraft:paper",
+        "S": "minecraft:sand",
+        "G": "minecraft:gunpowder"
+    },
+    "result": {
+        "id": "minecraft:tnt",
+        "count": 1
+    },
+    "group": "misc"
+}

@@ -1,0 +1,19 @@
+{
+    "parent": "minecraft:recipes/misc/root",
+    "criteria": {
+        "has_log": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    { "tag":  "minecraft:logs" }
+                ]
+            }
+        }
+    },
+    "requirements": [
+        ["has_log"]
+    ],
+    "rewards": {
+        "recipes": ["limited_life_v2:tnt_recipe"]
+    }
+}

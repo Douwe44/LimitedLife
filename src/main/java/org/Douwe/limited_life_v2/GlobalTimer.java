@@ -8,15 +8,16 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 public class GlobalTimer {
-    private final ArrayList<ServerPlayerEntity> activeTimerList;
+    private final ArrayList<UUID> activeTimerList;
 
-    public void pausePlayerTimer(ServerPlayerEntity p) { activeTimerList.remove(p); }
+    public void pausePlayerTimer(UUID id) { activeTimerList.remove(id); }
 
-    public void startPlayerTimer(ServerPlayerEntity p) { activeTimerList.add(p); }
+    public void startPlayerTimer(UUID id) { activeTimerList.add(id); }
 
-    public boolean playerHasActiveTimer(ServerPlayerEntity p) { return activeTimerList.contains(p); }
+    public boolean playerHasActiveTimer(UUID id) { return activeTimerList.contains(id); }
 
     public GlobalTimer() {
         this.activeTimerList = new ArrayList<>();
@@ -26,30 +27,31 @@ public class GlobalTimer {
             @Override
             public void run() {
                 if (Limited_life_v2.currentGlobalTimer == null) {this.cancel(); return;}
-                for(ServerPlayerEntity p : Limited_life_v2.playerList.keySet()) {
-                    if(activeTimerList.contains(p)) {
-                        float timeLeft = Limited_life_v2.playerList.get(p);
-                        if(p.isDisconnected()) { //persoon is offline
+                for(UUID id : Limited_life_v2.playerList.keySet()) {
+                    if(activeTimerList.contains(id)) {
+                        float timeLeft = Limited_life_v2.playerList.get(id);
+                        ServerPlayerEntity p = Limited_life_v2.s.getPlayerManager().getPlayer(id);
+                        if(p == null || !(Limited_life_v2.onlineList.contains(p)) ) { //persoon is offline  ... maybe change online list to uuid
                             if(timeLeft <= 0) {
-                                Limited_life_v2.playerList.replace(p, 0f);
-                                activeTimerList.remove(p);
-                                p.changeGameMode(GameMode.SPECTATOR);// force spectator
-                                //change team do class shit opruimen
+                                Limited_life_v2.playerList.replace(id, 0f);
+                                activeTimerList.remove(id);
+                                //p.changeGameMode(GameMode.SPECTATOR);// force spectator
+                                //Limited_life_v2.leaderboard.changeTeam(p, timeLeft);
 
                             } else {
-                                Limited_life_v2.playerList.replace(p, timeLeft -1.25f); //om dit 1.25 offline punishment
+                                Limited_life_v2.playerList.replace(id, timeLeft -1.25f); //om dit 1.25 offline punishment
                             }
                         } else { //persoon is online
                             if(timeLeft <= 0) {
-                                Limited_life_v2.playerList.replace(p, 0f);
-                                activeTimerList.remove(p);
+                                Limited_life_v2.playerList.replace(id, 0f);
+                                activeTimerList.remove(id);
                                 p.changeGameMode(GameMode.SPECTATOR);//force spectator
                             } else {
-                                Limited_life_v2.playerList.replace(p, timeLeft -1);
-                                p.sendMessage(Text.literal(Limited_life_v2.secToTime((int) timeLeft)));//niet in orgineel
+                                Limited_life_v2.playerList.replace(id, timeLeft -1);
+                                p.sendMessage(Text.literal(Limited_life_v2.secToTime((int) timeLeft)), true);//niet in orgineel
 
                             }
-                            //add team color switch
+                            Limited_life_v2.leaderboard.changeTeam(p, timeLeft);
                         }
                     }
                 }

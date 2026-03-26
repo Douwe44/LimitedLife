@@ -13,29 +13,29 @@ import static org.Douwe.limited_life_v2.Limited_life_v2.s;
 import static org.Douwe.limited_life_v2.Limited_life_v2.scoreboard;
 
 public class Leaderboard {
-    private Team dead;
-    private Team red;
-    private Team yellow;
-    private Team green;
+    private final Team dead;
+    private final Team red;
+    private final Team yellow;
+    private final Team green;
 
 
     public Leaderboard() {
-        Team dead = scoreboard.addTeam("dead");
+        dead = scoreboard.addTeam("dead");
         dead.setColor(Formatting.GRAY);
         dead.setShowFriendlyInvisibles(false);
         dead.setFriendlyFireAllowed(true);
 
-        Team red = scoreboard.addTeam("red");
+        red = scoreboard.addTeam("red");
         red.setColor(Formatting.RED);
         red.setShowFriendlyInvisibles(false);
         red.setFriendlyFireAllowed(true);
 
-        Team yellow = scoreboard.addTeam("yellow");
+        yellow = scoreboard.addTeam("yellow");
         yellow.setColor(Formatting.YELLOW);
         yellow.setShowFriendlyInvisibles(false);
         yellow.setFriendlyFireAllowed(true);
 
-        Team green = scoreboard.addTeam("green");
+        green = scoreboard.addTeam("green");
         green.setColor(Formatting.GREEN);
         green.setShowFriendlyInvisibles(false);
         green.setFriendlyFireAllowed(true);
