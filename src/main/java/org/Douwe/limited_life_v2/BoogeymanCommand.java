@@ -23,19 +23,19 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 
 public class BoogeymanCommand {
     static ArrayList<ServerPlayerEntity> boogeyList = new ArrayList<>();
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher){
+    public void register(CommandDispatcher<ServerCommandSource> dispatcher, Config config){
         dispatcher.register(literal("LimitedLife")
                 .then(literal("letsBoogey")
                     //.requires((src) -> src.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(4))))
                     .requires(Permissions.require("limited_life_v2.command", 4))
                     .executes(ctx -> {
-                        boogeyMan(ctx.getSource());
+                        boogeyMan(config);
                         return 1;})
                 )
         );
     }
 
-    public void boogeyMan(ServerCommandSource source) {
+    public void boogeyMan(Config config) {
         //source.getServer().getPlayerManager().disconnectAllPlayers();
         int redPlayers = 0;
         for(ServerPlayerEntity p : onlineList){
@@ -49,7 +49,7 @@ public class BoogeymanCommand {
         if(nonRedPlayers < 1) {
             if(redPlayers < 4) {
                 System.out.println("only 3 red players left, so no boogeyman");
-            } else if(gamble < 50){
+            } else if(gamble < 50 && config.enable.redBoogeyman){
                 sendBoogeyMessage(-1);
             }
         } else if(nonRedPlayers < 3) {

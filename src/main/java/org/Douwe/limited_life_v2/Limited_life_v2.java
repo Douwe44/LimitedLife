@@ -37,7 +37,6 @@ public class Limited_life_v2 implements ModInitializer {
     static Map<UUID, Float> playerList = new HashMap<>();
     static ArrayList<ServerPlayerEntity> onlineList = new ArrayList<>();
     static ExecutorService es = Executors.newSingleThreadExecutor();
-    float maxTime = 43200;
     static boolean timerIsRunning;
     static Scoreboard scoreboard;
     static MinecraftServer s;
@@ -46,7 +45,7 @@ public class Limited_life_v2 implements ModInitializer {
     EndSessionCommand endSessionCommand = new EndSessionCommand();
     TimerCommand timerCommand = new TimerCommand();
     GetTimeCommand getTimeCommand = new GetTimeCommand();
-
+    Config config;
 
     @Override
     public void onInitialize() {
@@ -56,14 +55,14 @@ public class Limited_life_v2 implements ModInitializer {
         CreateDirectoryIfNotExists(path);
         File configFile = path.resolve("config.yml").toFile();
         CreateFileIfNotExists(configFile, "config.yml");
-        Config config = Config.Load(configFile);
+        config = Config.Load(configFile);
 
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             s = server;
             scoreboard = s.getScoreboard();
             leaderboard = new Leaderboard();
-            currentGlobalTimer = new GlobalTimer();
+            currentGlobalTimer = new GlobalTimer(config);
             if(dataPath.toFile().exists()) {
                 try {
                     FileReader reader = new FileReader(dataPath.toFile());
@@ -75,6 +74,11 @@ public class Limited_life_v2 implements ModInitializer {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            if(config.enable.testKaas) {
+                System.out.println("het werkt niet");
+            } else if(!config.enable.testKaas) {
+                System.out.println("het werkt wel");
             }
         });
         ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
@@ -95,9 +99,9 @@ public class Limited_life_v2 implements ModInitializer {
             }
         });
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> boogeymanCommand.register(dispatcher));
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> giveKillCommand.register(dispatcher));
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> endSessionCommand.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> boogeymanCommand.register(dispatcher, config));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> giveKillCommand.register(dispatcher, config));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> endSessionCommand.register(dispatcher, config));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> getTimeCommand.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> timerCommand.register2(dispatcher));
 
@@ -113,7 +117,7 @@ public class Limited_life_v2 implements ModInitializer {
                 });
         ServerLivingEntityEvents.AFTER_DEATH.register((livingEntity, damageSource) -> {
             if(livingEntity.isPlayer()) {
-                KillsAndDeaths.playerDeath(livingEntity, damageSource);
+                KillsAndDeaths.playerDeath(livingEntity, damageSource, config);
             }
         });
     }
@@ -127,7 +131,7 @@ public class Limited_life_v2 implements ModInitializer {
                     currentGlobalTimer.startPlayerTimer(p.getUuid());
                 }
             } else {
-                playerList.put(p.getUuid(), maxTime);
+                playerList.put(p.getUuid(), config.numbers.startTime);
             }
         }
         onlineList.add(p);

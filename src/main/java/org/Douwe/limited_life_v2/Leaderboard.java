@@ -40,7 +40,7 @@ public class Leaderboard {
         green.setShowFriendlyInvisibles(false);
         green.setFriendlyFireAllowed(true);
     }
-    public void changeTeam(ServerPlayerEntity p, float timeLeft) {
+    public void changeTeam(ServerPlayerEntity p, float timeLeft, Config config) {
         String name = p.getStringifiedName();
         if(timeLeft <= 0) {
             scoreboard.addScoreHolderToTeam(name, dead);
@@ -53,11 +53,11 @@ public class Leaderboard {
                 p.getEntityWorld().spawnEntity(lightning);
             }
             //add to a deadlist(inSaveData) so when next session player does not get added to active list
-        } else if(timeLeft < 14400) {//set time here for red team, maybe config
+        } else if(timeLeft < config.numbers.turnRed) {//set time here for red team, maybe config
             if(!red.getPlayerList().contains(name)) {
                 scoreboard.addScoreHolderToTeam(name, red);
             }
-        } else if(timeLeft < 28800) {//set time here for yellow team, maybe config
+        } else if(timeLeft < config.numbers.turnYellow) {//set time here for yellow team, maybe config
             if(!yellow.getPlayerList().contains(name)) { //oke na wat testen en verward zijn volgens mij kunnen er geen dupes zijn dus dit kan gewoon weg, nou wacht kost minder tijd laat maar
                 scoreboard.addScoreHolderToTeam(name, yellow);
             }

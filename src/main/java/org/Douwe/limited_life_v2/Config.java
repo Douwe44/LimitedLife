@@ -40,6 +40,8 @@ public class Config {
     public static class Enable {
         public boolean showTimeToPlayer = false;
         public boolean redBoogeyman = true;
+        public boolean testKaas = true;
+        public boolean killRedBoogey = false;
     }
     public Numbers numbers = new Numbers();
     public Enable enable = new Enable();
