@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +25,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.yaml.snakeyaml.Yaml;
+
+import org.Douwe.limited_life_v2.Config;
 
 public class Limited_life_v2 implements ModInitializer {
     public static final String MOD_ID = "limited_life_v2";
@@ -49,6 +52,11 @@ public class Limited_life_v2 implements ModInitializer {
     public void onInitialize() {
         Yaml yaml = new Yaml();
         Path dataPath = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID + "/data.yml");
+        Path path = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
+        CreateDirectoryIfNotExists(path);
+        File configFile = path.resolve("config.yml").toFile();
+        CreateFileIfNotExists(configFile, "config.yml");
+        Config config = Config.Load(configFile);
 
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
@@ -70,7 +78,7 @@ public class Limited_life_v2 implements ModInitializer {
             }
         });
         ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
-            Path path = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
+
 
             CreateDirectoryIfNotExists(path);
             Yaml yaml2 = new Yaml();
@@ -156,6 +164,22 @@ public class Limited_life_v2 implements ModInitializer {
             }
         } catch(Exception exception) {
             LOGGER.warn("Failed to create a directory");
+            //disabled = true;
+            return;
+        }
+    }
+    private void CreateFileIfNotExists(File file, String useResource) {
+        if(file.exists()) return;
+
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(useResource)) {
+            if(is == null) {
+                LOGGER.warn("Failed to find the resource to create file");
+                //disabled = true;
+                return;
+            }
+            Files.copy(is, file.toPath());
+        } catch (IOException e) {
+            LOGGER.warn("Failed to create a file from a resource");
             //disabled = true;
             return;
         }
