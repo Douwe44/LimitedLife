@@ -45,6 +45,7 @@ public class Limited_life_v2 implements ModInitializer {
     EndSessionCommand endSessionCommand = new EndSessionCommand();
     TimerCommand timerCommand = new TimerCommand();
     GetTimeCommand getTimeCommand = new GetTimeCommand();
+    SetTimeCommand setTimeCommand = new SetTimeCommand();
     Config config;
 
     @Override
@@ -103,6 +104,7 @@ public class Limited_life_v2 implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> giveKillCommand.register(dispatcher, config));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> endSessionCommand.register(dispatcher, config));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> getTimeCommand.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> setTimeCommand.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> timerCommand.register2(dispatcher));
 
         ServerPlayConnectionEvents.JOIN.register(

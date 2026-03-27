@@ -18,11 +18,14 @@ import static org.Douwe.limited_life_v2.Limited_life_v2.playerList;
 
 public class EndSessionCommand {
     public void register(CommandDispatcher<ServerCommandSource> dispatcher, Config config){
-        dispatcher.register(literal("endSession")
-                .requires(Permissions.require("limited_life_v2.command", 4))
-                .executes(ctx -> {
-                    endSession(ctx.getSource(), config);
-                    return 1;})); //
+        dispatcher.register(literal("LimitedLife")
+                .then(literal("endSession")
+                    .requires(Permissions.require("limited_life_v2.command", 4))
+                    .executes(ctx -> {
+                        endSession(ctx.getSource(), config);
+                        return 1;})
+                )
+        ); //
     }
     public void endSession(ServerCommandSource source, Config config) {
         for(ServerPlayerEntity p : onlineList) {
