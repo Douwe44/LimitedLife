@@ -26,8 +26,6 @@ import java.util.concurrent.Executors;
 
 import org.yaml.snakeyaml.Yaml;
 
-import org.Douwe.limited_life_v2.Config;
-
 public class Limited_life_v2 implements ModInitializer {
     public static final String MOD_ID = "limited_life_v2";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -103,7 +101,11 @@ public class Limited_life_v2 implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> boogeymanCommand.register(dispatcher, config));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> giveKillCommand.register(dispatcher, config));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> endSessionCommand.register(dispatcher, config));
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> getTimeCommand.register(dispatcher));
+        if(config.enable.testFeature) {
+            CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> getTimeCommand.register2(dispatcher));
+        } else {
+            CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> getTimeCommand.register(dispatcher));
+        }
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> setTimeCommand.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> timerCommand.register2(dispatcher));
 

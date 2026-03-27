@@ -42,6 +42,7 @@ public class Config {
         public boolean redBoogeyman = true;
         public boolean testKaas = true;
         public boolean killRedBoogey = false;
+        public boolean testFeature = false;
     }
     public Numbers numbers = new Numbers();
     public Enable enable = new Enable();
