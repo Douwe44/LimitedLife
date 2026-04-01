@@ -11,6 +11,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 public class GlobalTimer {
+    Config config;
     private final ArrayList<UUID> activeTimerList;
 
     public void pausePlayerTimer(UUID id) { activeTimerList.remove(id); }
@@ -19,8 +20,9 @@ public class GlobalTimer {
 
     public boolean playerHasActiveTimer(UUID id) { return activeTimerList.contains(id); }
 
-    public GlobalTimer() {
+    public GlobalTimer(Config config) {
         this.activeTimerList = new ArrayList<>();
+        this.config = config;
         Timer timer = new Timer();
 
         TimerTask task = new TimerTask() {
@@ -48,10 +50,12 @@ public class GlobalTimer {
                                 p.changeGameMode(GameMode.SPECTATOR);//force spectator
                             } else {
                                 Limited_life_v2.playerList.replace(id, timeLeft -1);
-                                p.sendMessage(Text.literal(Limited_life_v2.secToTime((int) timeLeft)), true);//niet in orgineel
+                                if(config.enable.showTimeToPlayer){
+                                    p.sendMessage(Text.literal(Limited_life_v2.secToTime((int) timeLeft)), true);//niet in orgineel
+                                }
 
                             }
-                            Limited_life_v2.leaderboard.changeTeam(p, timeLeft);
+                            Limited_life_v2.leaderboard.changeTeam(p, timeLeft, config);
                         }
                     }
                 }

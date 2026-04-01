@@ -15,7 +15,7 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class GiveKillCommand {
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher){
+    public void register(CommandDispatcher<ServerCommandSource> dispatcher, Config config){
         dispatcher.register(literal("LimitedLife")
                 .then(literal("giveKillTo")
                         .requires(Permissions.require("limited_life_v2.command", 4))
@@ -23,15 +23,15 @@ public class GiveKillCommand {
                             .executes(ctx -> {
                                 ServerPlayerEntity player =
                                     EntityArgumentType.getPlayer(ctx, "player");
-                                giveKill(player);
+                                giveKill(player, config);
                                 return 1;})
                         )
                 )
         );
     }
-    public void giveKill(ServerPlayerEntity p) {
+    public void giveKill(ServerPlayerEntity p, Config config) {
         float timeLeft = Limited_life_v2.playerList.get(p.getUuid());
-        Limited_life_v2.playerList.replace(p.getUuid(), timeLeft + 1800);
+        Limited_life_v2.playerList.replace(p.getUuid(), timeLeft + config.numbers.killReward);
         if(BoogeymanCommand.boogeyList.contains(p)) {
             //misschien nog een kadootje
             p.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("YOU ARE CURED").formatted(Formatting.GREEN)));

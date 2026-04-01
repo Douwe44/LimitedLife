@@ -11,18 +11,18 @@ import java.util.UUID;
 
 
 public class KillsAndDeaths {
-    public static void playerDeath(LivingEntity d, DamageSource k){
+    public static void playerDeath(LivingEntity d, DamageSource k, Config config){
         if(Limited_life_v2.currentGlobalTimer == null) return;
         ServerPlayerEntity deadPlayer = (ServerPlayerEntity)d;
-        UUID id = deadPlayer.getUuid();
-        if(!Limited_life_v2.currentGlobalTimer.playerHasActiveTimer(id)) return;
-        float timeLeft = Limited_life_v2.playerList.get((id));
-        Limited_life_v2.playerList.replace(id, timeLeft - 3600);
+        UUID idDead = deadPlayer.getUuid();
+        if(!Limited_life_v2.currentGlobalTimer.playerHasActiveTimer(idDead)) return;
+        float timeLeft = Limited_life_v2.playerList.get((idDead));
+        Limited_life_v2.playerList.replace(idDead, timeLeft - config.numbers.deathPenalty);
         if(k.getAttacker() == null) return;
         if(k.getAttacker().isPlayer()) {
             ServerPlayerEntity killer = (ServerPlayerEntity) k.getAttacker();
             timeLeft = Limited_life_v2.playerList.get(killer.getUuid());
-            Limited_life_v2.playerList.replace(killer.getUuid(), timeLeft + 1800);
+            Limited_life_v2.playerList.replace(killer.getUuid(), timeLeft + config.numbers.killReward);
             if(BoogeymanCommand.boogeyList.contains(killer)) {
                 //misschien nog een kadootje
                 killer.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("YOU ARE CURED").formatted(Formatting.GREEN)));

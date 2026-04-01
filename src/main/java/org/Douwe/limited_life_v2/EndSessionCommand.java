@@ -17,14 +17,17 @@ import static org.Douwe.limited_life_v2.Limited_life_v2.onlineList;
 import static org.Douwe.limited_life_v2.Limited_life_v2.playerList;
 
 public class EndSessionCommand {
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher){
-        dispatcher.register(literal("endSession")
-                .requires(Permissions.require("limited_life_v2.command", 4))
-                .executes(ctx -> {
-                    endSession(ctx.getSource());
-                    return 1;})); //
+    public void register(CommandDispatcher<ServerCommandSource> dispatcher, Config config){
+        dispatcher.register(literal("LimitedLife")
+                .then(literal("endSession")
+                    .requires(Permissions.require("limited_life_v2.command", 4))
+                    .executes(ctx -> {
+                        endSession(ctx.getSource(), config);
+                        return 1;})
+                )
+        ); //
     }
-    public void endSession(ServerCommandSource source) {
+    public void endSession(ServerCommandSource source, Config config) {
         for(ServerPlayerEntity p : onlineList) {
             new java.util.Timer().schedule(
                     new java.util.TimerTask() {
@@ -61,12 +64,16 @@ public class EndSessionCommand {
                 );
                 UUID id = p.getUuid();
                 float timeLeft = playerList.get(id);
-                if(timeLeft < 14400) {
-                    playerList.replace(id, 3600f);
-                } else if(timeLeft < 28800) {
-                    playerList.replace(id, 14400f);
+                if(timeLeft < config.numbers.turnRed) {
+                    if(config.enable.killRedBoogey) {
+                        playerList.replace(id, 0f);
+                    } else {
+                        playerList.replace(id, config.numbers.deathPenalty);
+                    }
+                } else if(timeLeft < config.numbers.turnYellow) {
+                    playerList.replace(id, config.numbers.turnRed);
                 } else {
-                    playerList.replace(id, 28800f);
+                    playerList.replace(id, config.numbers.turnYellow);
                 }
                 BoogeymanCommand.boogeyList.remove(p);
             }
