@@ -1,14 +1,13 @@
 package org.Douwe.limited_life_v2;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.world.GameMode;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 
 public class GlobalTimer {
     Config config;
@@ -32,7 +31,7 @@ public class GlobalTimer {
                 for(UUID id : Limited_life_v2.playerList.keySet()) {
                     if(activeTimerList.contains(id)) {
                         float timeLeft = Limited_life_v2.playerList.get(id);
-                        ServerPlayerEntity p = Limited_life_v2.s.getPlayerManager().getPlayer(id);
+                        ServerPlayer p = Limited_life_v2.s.getPlayerList().getPlayer(id);
                         if(p == null || !(Limited_life_v2.onlineList.contains(p)) ) { //persoon is offline  ... maybe change online list to uuid
                             if(timeLeft <= 0) {
                                 Limited_life_v2.playerList.replace(id, 0f);
@@ -47,11 +46,11 @@ public class GlobalTimer {
                             if(timeLeft <= 0) {
                                 Limited_life_v2.playerList.replace(id, 0f);
                                 activeTimerList.remove(id);
-                                p.changeGameMode(GameMode.SPECTATOR);//force spectator
+                                p.setGameMode(GameType.SPECTATOR);//force spectator
                             } else {
                                 Limited_life_v2.playerList.replace(id, timeLeft -1);
                                 if(config.enable.showTimeToPlayer){
-                                    p.sendMessage(Text.literal(Limited_life_v2.secToTime((int) timeLeft)), true);//niet in orgineel
+                                    p.sendSystemMessage(Component.literal(Limited_life_v2.secToTime((int) timeLeft)), true);//niet in orgineel
                                 }
 
                             }

@@ -7,10 +7,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.scores.Scoreboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ public class Limited_life_v2 implements ModInitializer {
     public static GlobalTimer currentGlobalTimer;
 
     static Map<UUID, Float> playerList = new HashMap<>();
-    static ArrayList<ServerPlayerEntity> onlineList = new ArrayList<>();
+    static ArrayList<ServerPlayer> onlineList = new ArrayList<>();
     static ExecutorService es = Executors.newSingleThreadExecutor();
     static boolean timerIsRunning;
     static Scoreboard scoreboard;
@@ -76,7 +75,7 @@ public class Limited_life_v2 implements ModInitializer {
             }
             if(config.enable.testKaas) {
                 System.out.println("het werkt niet");
-            } else if(!config.enable.testKaas) {
+            } else {
                 System.out.println("het werkt wel");
             }
         });
@@ -111,36 +110,36 @@ public class Limited_life_v2 implements ModInitializer {
 
         ServerPlayConnectionEvents.JOIN.register(
                 (serverPlayNetworkHandler, packetSender, minecraftServer) -> {
-                    ServerPlayerEntity onlinePlayer = serverPlayNetworkHandler.getPlayer();
+                    ServerPlayer onlinePlayer = serverPlayNetworkHandler.getPlayer();
                     playerJoined(onlinePlayer);
                 }
         );
         ServerPlayConnectionEvents.DISCONNECT.register((serverPlayNetworkHandler, minecraftServer) -> {
-                    ServerPlayerEntity onlinePlayer = serverPlayNetworkHandler.getPlayer();
+                    ServerPlayer onlinePlayer = serverPlayNetworkHandler.getPlayer();
                     playerLeft(onlinePlayer);
                 });
         ServerLivingEntityEvents.AFTER_DEATH.register((livingEntity, damageSource) -> {
-            if(livingEntity.isPlayer()) {
+            if(livingEntity.isAlwaysTicking()) {
                 KillsAndDeaths.playerDeath(livingEntity, damageSource, config);
             }
         });
     }
 
 
-    public void playerJoined(ServerPlayerEntity p) {
-        if(!playerList.containsKey(p.getUuid())) { //check if it's a new player
+    public void playerJoined(ServerPlayer p) {
+        if(!playerList.containsKey(p.getUUID())) { //check if it's a new player
             if(!playerList.isEmpty()) {
-                playerList.put(p.getUuid(), averageTime());
-                if(timerIsRunning && !currentGlobalTimer.playerHasActiveTimer(p.getUuid())){
-                    currentGlobalTimer.startPlayerTimer(p.getUuid());
+                playerList.put(p.getUUID(), averageTime());
+                if(timerIsRunning && !currentGlobalTimer.playerHasActiveTimer(p.getUUID())){
+                    currentGlobalTimer.startPlayerTimer(p.getUUID());
                 }
             } else {
-                playerList.put(p.getUuid(), config.numbers.startTime);
+                playerList.put(p.getUUID(), config.numbers.startTime);
             }
         }
         onlineList.add(p);
     }
-    public void playerLeft(ServerPlayerEntity p) { //if server is stopped this maybe does not work
+    public void playerLeft(ServerPlayer p) { //if server is stopped this maybe does not work
         onlineList.remove(p);
     }
 
@@ -182,13 +181,11 @@ public class Limited_life_v2 implements ModInitializer {
         try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(useResource)) {
             if(is == null) {
                 LOGGER.warn("Failed to find the resource to create file");
-                //disabled = true;
                 return;
             }
             Files.copy(is, file.toPath());
         } catch (IOException e) {
             LOGGER.warn("Failed to create a file from a resource");
-            //disabled = true;
             return;
         }
     }

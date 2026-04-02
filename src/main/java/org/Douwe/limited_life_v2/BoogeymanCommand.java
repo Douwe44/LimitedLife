@@ -1,29 +1,27 @@
 package org.Douwe.limited_life_v2;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.command.permission.*;
-import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.server.level.ServerPlayer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
 
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
 import static org.Douwe.limited_life_v2.Limited_life_v2.onlineList;
 import static org.Douwe.limited_life_v2.Limited_life_v2.scoreboard;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 
 public class BoogeymanCommand {
-    static ArrayList<ServerPlayerEntity> boogeyList = new ArrayList<>();
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher, Config config){
+    static ArrayList<ServerPlayer> boogeyList = new ArrayList<>();
+    public void register(CommandDispatcher<CommandSourceStack> dispatcher, Config config){
         dispatcher.register(literal("LimitedLife")
                 .then(literal("letsBoogey")
                     //.requires((src) -> src.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(4))))
@@ -38,8 +36,8 @@ public class BoogeymanCommand {
     public void boogeyMan(Config config) {
         //source.getServer().getPlayerManager().disconnectAllPlayers();
         int redPlayers = 0;
-        for(ServerPlayerEntity p : onlineList){
-            if(p.getScoreboardTeam() == scoreboard.getTeam("red")) {
+        for(ServerPlayer p : onlineList){
+            if(p.getTeam() == scoreboard.getPlayerTeam("red")) {
                 redPlayers = redPlayers +1;
             }
         }
@@ -73,12 +71,12 @@ public class BoogeymanCommand {
     }
     public void sendBoogeyMessage(int cursed) {//add timerstuf
         Collections.shuffle(onlineList);
-        timeDelay(1000,"", "Choosing Boogeyman in:", "", "", Formatting.GRAY);
-        timeDelay(2000,"", "3", "", "", Formatting.GREEN);
-        timeDelay(3000,"", "2", "", "", Formatting.YELLOW);
-        timeDelay(4000,"", "1", "", "", Formatting.RED);
-        timeDelay(5000,"", "YOU", "", "", Formatting.GREEN);
-        timeDelay(7000,"", "ARE", "", "", Formatting.YELLOW);
+        timeDelay(1000,"", "Choosing Boogeyman in:", "", "", ChatFormatting.GRAY);
+        timeDelay(2000,"", "3", "", "", ChatFormatting.GREEN);
+        timeDelay(3000,"", "2", "", "", ChatFormatting.YELLOW);
+        timeDelay(4000,"", "1", "", "", ChatFormatting.RED);
+        timeDelay(5000,"", "YOU", "", "", ChatFormatting.GREEN);
+        timeDelay(7000,"", "ARE", "", "", ChatFormatting.YELLOW);
         if(cursed == -1) {
             boogeyList.add(onlineList.getFirst());
 //        } else if(cursed == 3) {
@@ -93,7 +91,7 @@ public class BoogeymanCommand {
         } else {
             int i = 0;
             while (i < cursed) {
-                if(!(onlineList.get(i).getScoreboardTeam() == scoreboard.getTeam("red") || (boogeyList.contains(onlineList.get(i))))) {
+                if(!(onlineList.get(i).getTeam() == scoreboard.getPlayerTeam("red") || (boogeyList.contains(onlineList.get(i))))) {
                     boogeyList.add(onlineList.get(i));
                     i = i + 1;
                 }
@@ -111,14 +109,14 @@ public class BoogeymanCommand {
 //    }
 
     public void sendBoogey() {
-        for(ServerPlayerEntity p : onlineList) {
+        for(ServerPlayer p : onlineList) {
             if(boogeyList.contains(p)) {
                 new java.util.Timer().schedule(
                         new java.util.TimerTask() {
                             public void run() {
-                                p.networkHandler.sendPacket(new TitleFadeS2CPacket(2, 30, 10));
-                                p.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("THE BOOGEYMAN").formatted(Formatting.RED)));
-                                p.networkHandler.sendPacket(new SubtitleS2CPacket(Text.literal("")));
+                                p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
+                                p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("THE BOOGEYMAN").withStyle(ChatFormatting.RED)));
+                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("")));
                             }
                         },10000
                 );
@@ -126,9 +124,9 @@ public class BoogeymanCommand {
                 new java.util.Timer().schedule(
                         new java.util.TimerTask() {
                             public void run() {
-                                p.networkHandler.sendPacket(new TitleFadeS2CPacket(2, 30, 10));
-                                p.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("NOT The Boogeyman").formatted(Formatting.GREEN)));
-                                p.networkHandler.sendPacket(new SubtitleS2CPacket(Text.literal("")));
+                                p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
+                                p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("NOT The Boogeyman").withStyle(ChatFormatting.GREEN)));
+                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("")));
                             }
                         },10000
                 );
@@ -138,16 +136,16 @@ public class BoogeymanCommand {
         }
         //boogeyList.clear();
     }
-    public void sendAllMessage(String title, String subtitle, String bar, String chat, Formatting color) {
-        for(ServerPlayerEntity p : onlineList) {
-            p.networkHandler.sendPacket(new TitleFadeS2CPacket(5, 20, 10));
-            p.networkHandler.sendPacket(new TitleS2CPacket(Text.literal(title).formatted(color)));
-            p.networkHandler.sendPacket(new SubtitleS2CPacket(Text.literal(subtitle).formatted(color)));
-            p.sendMessage(Text.literal(bar).formatted(color), true);
+    public void sendAllMessage(String title, String subtitle, String bar, String chat, ChatFormatting color) {
+        for(ServerPlayer p : onlineList) {
+            p.connection.send(new ClientboundSetTitlesAnimationPacket(5, 20, 10));
+            p.connection.send(new ClientboundSetTitleTextPacket(Component.literal(title).withStyle(color)));
+            p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(subtitle).withStyle(color)));
+            p.sendSystemMessage(Component.literal(bar).withStyle(color), true);
             //p.sendMessage(Text.literal(chat).formatted(color), false);
         }
     }
-    void timeDelay(long time, String title, String subtitle, String bar, String chat, Formatting color) {
+    void timeDelay(long time, String title, String subtitle, String bar, String chat, ChatFormatting color) {
         new java.util.Timer().schedule(
                 new java.util.TimerTask() {
                     public void run() {

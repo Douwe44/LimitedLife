@@ -1,0 +1,14 @@
+#this file needs to be in /config/limited_life_v2  , please fill in all the numbers and stuf idk what will happen if you dont, probably not much
+numbers: #all values are in seconds, and must be positive ty
+  startTime: 43200
+  turnYellow: 28800
+  turnRed: 14400
+  deathPenalty: 3600 #must be positive
+  killReward: 1800
+
+enable:
+  showTimeToPlayer: false
+  redBoogeyman: true
+  testKaas: true             # if set to true then server will say it does not work, which means the config works, this is just to piss off hidde
+  killRedBoogey: false       #if true redBoogey will die if they failed to cure themself, if false the person will get 1 deathpenalty as remaining time
+  testFeature: true          #this is to turn of or on test features, now used for getting time of offline players

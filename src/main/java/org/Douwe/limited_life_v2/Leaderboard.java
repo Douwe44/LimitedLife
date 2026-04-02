@@ -1,69 +1,68 @@
 package org.Douwe.limited_life_v2;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.world.GameMode;
-
 import static org.Douwe.limited_life_v2.Limited_life_v2.s;
 import static org.Douwe.limited_life_v2.Limited_life_v2.scoreboard;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.scores.PlayerTeam;
+
 public class Leaderboard {
-    private final Team dead;
-    private final Team red;
-    private final Team yellow;
-    private final Team green;
+    private final PlayerTeam dead;
+    private final PlayerTeam red;
+    private final PlayerTeam yellow;
+    private final PlayerTeam green;
 
 
     public Leaderboard() {
-        dead = scoreboard.addTeam("dead");
-        dead.setColor(Formatting.GRAY);
-        dead.setShowFriendlyInvisibles(false);
-        dead.setFriendlyFireAllowed(true);
+        dead = scoreboard.addPlayerTeam("dead");
+        dead.setColor(ChatFormatting.GRAY);
+        dead.setSeeFriendlyInvisibles(false);
+        dead.setAllowFriendlyFire(true);
 
-        red = scoreboard.addTeam("red");
-        red.setColor(Formatting.RED);
-        red.setShowFriendlyInvisibles(false);
-        red.setFriendlyFireAllowed(true);
+        red = scoreboard.addPlayerTeam("red");
+        red.setColor(ChatFormatting.RED);
+        red.setSeeFriendlyInvisibles(false);
+        red.setAllowFriendlyFire(true);
 
-        yellow = scoreboard.addTeam("yellow");
-        yellow.setColor(Formatting.YELLOW);
-        yellow.setShowFriendlyInvisibles(false);
-        yellow.setFriendlyFireAllowed(true);
+        yellow = scoreboard.addPlayerTeam("yellow");
+        yellow.setColor(ChatFormatting.YELLOW);
+        yellow.setSeeFriendlyInvisibles(false);
+        yellow.setAllowFriendlyFire(true);
 
-        green = scoreboard.addTeam("green");
-        green.setColor(Formatting.GREEN);
-        green.setShowFriendlyInvisibles(false);
-        green.setFriendlyFireAllowed(true);
+        green = scoreboard.addPlayerTeam("green");
+        green.setColor(ChatFormatting.GREEN);
+        green.setSeeFriendlyInvisibles(false);
+        green.setAllowFriendlyFire(true);
     }
-    public void changeTeam(ServerPlayerEntity p, float timeLeft, Config config) {
-        String name = p.getStringifiedName();
+    public void changeTeam(ServerPlayer p, float timeLeft, Config config) {
+        String name = p.getPlainTextName();
         if(timeLeft <= 0) {
-            scoreboard.addScoreHolderToTeam(name, dead);
-            p.changeGameMode(GameMode.SPECTATOR);
-            s.getPlayerManager().broadcast(Text.literal(name +"'s tijd is op, L bozo!").formatted(Formatting.RED), false );
-            if(!p.isDisconnected()) {
-                LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, p.getEntityWorld());
-                lightning.setCosmetic(true);
-                lightning.setPos(p.getX(), p.getY(), p.getZ());
-                p.getEntityWorld().spawnEntity(lightning);
+            scoreboard.addPlayerToTeam(name, dead);
+            p.setGameMode(GameType.SPECTATOR);
+            s.getPlayerList().broadcastSystemMessage(Component.literal(name +"'s tijd is op, L bozo!").withStyle(ChatFormatting.RED), false );
+            if(!p.hasDisconnected()) {
+                LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, p.level());
+                lightning.setVisualOnly(true);
+                lightning.setPosRaw(p.getX(), p.getY(), p.getZ());
+                p.level().addFreshEntity(lightning);
             }
             //add to a deadlist(inSaveData) so when next session player does not get added to active list
         } else if(timeLeft < config.numbers.turnRed) {//set time here for red team, maybe config
-            if(!red.getPlayerList().contains(name)) {
-                scoreboard.addScoreHolderToTeam(name, red);
+            if(!red.getPlayers().contains(name)) {
+                scoreboard.addPlayerToTeam(name, red);
             }
         } else if(timeLeft < config.numbers.turnYellow) {//set time here for yellow team, maybe config
-            if(!yellow.getPlayerList().contains(name)) { //oke na wat testen en verward zijn volgens mij kunnen er geen dupes zijn dus dit kan gewoon weg, nou wacht kost minder tijd laat maar
-                scoreboard.addScoreHolderToTeam(name, yellow);
+            if(!yellow.getPlayers().contains(name)) { //oke na wat testen en verward zijn volgens mij kunnen er geen dupes zijn dus dit kan gewoon weg, nou wacht kost minder tijd laat maar
+                scoreboard.addPlayerToTeam(name, yellow);
             }
         } else {
-            if(!green.getPlayerList().contains(name)) {
-                scoreboard.addScoreHolderToTeam(name, green);
+            if(!green.getPlayers().contains(name)) {
+                scoreboard.addPlayerToTeam(name, green);
             }
         }
     }

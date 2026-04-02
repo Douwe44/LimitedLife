@@ -2,39 +2,37 @@ package org.Douwe.limited_life_v2;
 
 import com.mojang.brigadier.CommandDispatcher;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.permission.Permission;
-import net.minecraft.command.permission.PermissionLevel;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.server.level.ServerPlayer;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class GiveKillCommand {
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher, Config config){
+    public void register(CommandDispatcher<CommandSourceStack> dispatcher, Config config){
         dispatcher.register(literal("LimitedLife")
                 .then(literal("giveKillTo")
                         .requires(Permissions.require("limited_life_v2.command", 4))
-                        .then(argument("player", EntityArgumentType.player())
+                        .then(argument("player", EntityArgument.player())
                             .executes(ctx -> {
-                                ServerPlayerEntity player =
-                                    EntityArgumentType.getPlayer(ctx, "player");
+                                ServerPlayer player =
+                                    EntityArgument.getPlayer(ctx, "player");
                                 giveKill(player, config);
                                 return 1;})
                         )
                 )
         );
     }
-    public void giveKill(ServerPlayerEntity p, Config config) {
-        float timeLeft = Limited_life_v2.playerList.get(p.getUuid());
-        Limited_life_v2.playerList.replace(p.getUuid(), timeLeft + config.numbers.killReward);
+    public void giveKill(ServerPlayer p, Config config) {
+        float timeLeft = Limited_life_v2.playerList.get(p.getUUID());
+        Limited_life_v2.playerList.replace(p.getUUID(), timeLeft + config.numbers.killReward);
         if(BoogeymanCommand.boogeyList.contains(p)) {
             //misschien nog een kadootje
-            p.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("YOU ARE CURED").formatted(Formatting.GREEN)));
+            p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("YOU ARE CURED").withStyle(ChatFormatting.GREEN)));
             BoogeymanCommand.boogeyList.remove(p);
         }
     }
