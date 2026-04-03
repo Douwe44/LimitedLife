@@ -30,10 +30,10 @@ public class GiveKillCommand {
     public void giveKill(ServerPlayer p, Config config) {
         float timeLeft = Limited_life_v2.playerList.get(p.getUUID());
         Limited_life_v2.playerList.replace(p.getUUID(), timeLeft + config.numbers.killReward);
-        if(BoogeymanCommand.boogeyList.contains(p)) {
-            //misschien nog een kadootje
+        if(BoogeymanCommand.boogeyList.contains(p.getUUID())) {
+            Limited_life_v2.playerList.replace(p.getUUID(), timeLeft + config.numbers.extraBoogeyReward);
             p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("YOU ARE CURED").withStyle(ChatFormatting.GREEN)));
-            BoogeymanCommand.boogeyList.remove(p);
+            BoogeymanCommand.boogeyList.remove(p.getUUID());
         }
     }
 }

@@ -36,6 +36,7 @@ public class Config {
         public float turnRed = 14400;     // 4 hours
         public float deathPenalty = 3600; // 1 hour
         public float killReward = 1800;   // half hour
+        public float extraBoogeyReward = 3600; //extra time which is aboth the normal reward
     }
     public static class Enable {
         public boolean showTimeToPlayer = false;
@@ -43,6 +44,7 @@ public class Config {
         public boolean testKaas = true;
         public boolean killRedBoogey = false;
         public boolean testFeature = false;
+        public boolean showBoogeyInTerminal = true;
     }
     public Numbers numbers = new Numbers();
     public Enable enable = new Enable();

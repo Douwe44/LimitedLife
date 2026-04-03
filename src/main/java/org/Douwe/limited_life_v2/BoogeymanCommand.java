@@ -11,16 +11,16 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.UUID;
 
 
 import static net.minecraft.commands.Commands.literal;
-import static org.Douwe.limited_life_v2.Limited_life_v2.onlineList;
-import static org.Douwe.limited_life_v2.Limited_life_v2.scoreboard;
+import static org.Douwe.limited_life_v2.Limited_life_v2.*;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 
 public class BoogeymanCommand {
-    static ArrayList<ServerPlayer> boogeyList = new ArrayList<>();
+    static ArrayList<UUID> boogeyList = new ArrayList<>();
     public void register(CommandDispatcher<CommandSourceStack> dispatcher, Config config){
         dispatcher.register(literal("LimitedLife")
                 .then(literal("letsBoogey")
@@ -48,28 +48,28 @@ public class BoogeymanCommand {
             if(redPlayers < 4) {
                 System.out.println("only 3 red players left, so no boogeyman");
             } else if(gamble < 50 && config.enable.redBoogeyman){
-                sendBoogeyMessage(-1);
+                sendBoogeyMessage(-1, config);
             }
         } else if(nonRedPlayers < 3) {
             if((gamble < 10) && (nonRedPlayers == 2)) {
-                sendBoogeyMessage(2);
+                sendBoogeyMessage(2, config);
             } else if(gamble < 60) {
-                sendBoogeyMessage(1);
+                sendBoogeyMessage(1, config);
             } else {
-                sendBoogeyMessage(0);
+                sendBoogeyMessage(0, config);
             }
         } else {
             if(gamble < 5) {
-                sendBoogeyMessage(3);
+                sendBoogeyMessage(3, config);
             } else if(gamble < 30) {
-                sendBoogeyMessage(2);
+                sendBoogeyMessage(2, config);
             } else {
-                sendBoogeyMessage(1);
+                sendBoogeyMessage(1, config);
             }
         }
 
     }
-    public void sendBoogeyMessage(int cursed) {//add timerstuf
+    public void sendBoogeyMessage(int cursed, Config config) {//add timerstuf
         Collections.shuffle(onlineList);
         timeDelay(1000,"", "Choosing Boogeyman in:", "", "", ChatFormatting.GRAY);
         timeDelay(2000,"", "3", "", "", ChatFormatting.GREEN);
@@ -78,7 +78,10 @@ public class BoogeymanCommand {
         timeDelay(5000,"", "YOU", "", "", ChatFormatting.GREEN);
         timeDelay(7000,"", "ARE", "", "", ChatFormatting.YELLOW);
         if(cursed == -1) {
-            boogeyList.add(onlineList.getFirst());
+            boogeyList.add(onlineList.getFirst().getUUID());
+            if (config.enable.showBoogeyInTerminal){
+                System.out.println(onlineList.getFirst().getPlainTextName() + "is the boogeyman");
+            }
 //        } else if(cursed == 3) {
 //            chooseBoogey(0);
 //            chooseBoogey(1);
@@ -91,8 +94,13 @@ public class BoogeymanCommand {
         } else {
             int i = 0;
             while (i < cursed) {
-                if(!(onlineList.get(i).getTeam() == scoreboard.getPlayerTeam("red") || (boogeyList.contains(onlineList.get(i))))) {
-                    boogeyList.add(onlineList.get(i));
+                if(!(onlineList.get(i).getTeam() == scoreboard.getPlayerTeam("red") || (boogeyList.contains(onlineList.get(i).getUUID())))) {
+                    boogeyList.add(onlineList.get(i).getUUID());
+                    if(config.enable.showBoogeyInTerminal) {
+                        System.out.println(onlineList.get(i).getPlainTextName() + "is a boogeyman");
+                        //LOGGER.info(onlineList.get(i).getPlainTextName() + "is a boogeyman");
+                    }
+
                     i = i + 1;
                 }
             }
@@ -110,7 +118,7 @@ public class BoogeymanCommand {
 
     public void sendBoogey() {
         for(ServerPlayer p : onlineList) {
-            if(boogeyList.contains(p)) {
+            if(boogeyList.contains(p.getUUID())) {
                 new java.util.Timer().schedule(
                         new java.util.TimerTask() {
                             public void run() {

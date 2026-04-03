@@ -22,7 +22,7 @@ public class TimerCommand {
                         .executes(ctx -> {
                             for (UUID id : Limited_life_v2.playerList.keySet()) {
                                 Limited_life_v2.currentGlobalTimer.pausePlayerTimer(id);
-                            };
+                            }
                             ctx.getSource().getPlayer().sendSystemMessage(Component.literal("you have stopped everyone's time "));
                             Limited_life_v2.timerIsRunning = false;
                             return 1;}
@@ -60,7 +60,7 @@ public class TimerCommand {
                                 if(!Limited_life_v2.currentGlobalTimer.playerHasActiveTimer(id)){
                                     Limited_life_v2.currentGlobalTimer.startPlayerTimer(id);
                                 }
-                            };
+                            }
                             ctx.getSource().getPlayer().sendSystemMessage(Component.literal("you have started everyone's time "));
                             Limited_life_v2.timerIsRunning = true;
                             return 1;}
