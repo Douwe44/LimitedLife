@@ -57,7 +57,9 @@ public class TimerCommand {
                     .then(literal("start")
                         .executes(ctx -> {
                             for (UUID id : Limited_life_v2.playerList.keySet()) {
-                                Limited_life_v2.currentGlobalTimer.startPlayerTimer(id);
+                                if(!Limited_life_v2.currentGlobalTimer.playerHasActiveTimer(id)){
+                                    Limited_life_v2.currentGlobalTimer.startPlayerTimer(id);
+                                }
                             };
                             ctx.getSource().getPlayer().sendSystemMessage(Component.literal("you have started everyone's time "));
                             Limited_life_v2.timerIsRunning = true;
@@ -68,8 +70,10 @@ public class TimerCommand {
                                 ServerPlayer player =
                                     EntityArgument.getPlayer(ctx, "player");
                                 UUID id = player.getUUID();
-                                Limited_life_v2.currentGlobalTimer.startPlayerTimer(id);
-                                ctx.getSource().getPlayer().sendSystemMessage(Component.literal("you have started " +player.getPlainTextName()+  "'s name"));
+                                if(!Limited_life_v2.currentGlobalTimer.playerHasActiveTimer(id)) {
+                                    Limited_life_v2.currentGlobalTimer.startPlayerTimer(id);
+                                }
+                                ctx.getSource().getPlayer().sendSystemMessage(Component.literal("you have started " +player.getPlainTextName()+  "'s time"));
                                 return 1;}
                             )
                         )

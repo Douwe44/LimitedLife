@@ -3,6 +3,14 @@ package org.Douwe.limited_life_v2;
 import com.mojang.brigadier.CommandDispatcher;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -35,17 +43,27 @@ public class GetTimeCommand {
     public void register2(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("LimitedLife")
                         .then(literal("getTimeOf")
-                                        .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                                        .then(Commands.argument("player", StringArgumentType.string()).suggests(new SuggestionProvider<CommandSourceStack>() {
+                                                            @Override
+                                                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> commandContext, SuggestionsBuilder suggestionsBuilder) throws CommandSyntaxException {
+                                                                CommandSourceStack source = commandContext.getSource();
+                                                                Collection<String> names = Limited_life_v2.playerNames.keySet();
+                                                                for(String playerName : names) {
+                                                                    suggestionsBuilder.suggest(playerName);
+                                                                }
+                                                                return suggestionsBuilder.buildFuture();
+                                                            }
+                                                        })
                                                         .executes(ctx -> {
 
-                                                            Collection<NameAndId> profile =
-                                                                    GameProfileArgument.getGameProfiles(ctx, "player");
-                                                            for(NameAndId p : profile){
-                                                                UUID player = p.id();
-                                                                String name = p.name();
-                                                                String time = Limited_life_v2.secToTime((int) Limited_life_v2.getPlayerTimeLeft(player));
-                                                                ctx.getSource().getPlayer().sendSystemMessage(Component.literal(name +  "'s time: "+ time));
-                                                            }
+                                                            String name  =
+                                                                    StringArgumentType.getString(ctx, "player");
+
+                                                            UUID player = Limited_life_v2.playerNames.get(name);
+
+                                                            String time = Limited_life_v2.secToTime((int) Limited_life_v2.getPlayerTimeLeft(player));
+                                                            ctx.getSource().getPlayer().sendSystemMessage(Component.literal(name +  "'s time: "+ time));
+
                                                             return 1;
                                                         })
                                         )

@@ -31,6 +31,7 @@ public class Limited_life_v2 implements ModInitializer {
     public static Leaderboard leaderboard;
     public static GlobalTimer currentGlobalTimer;
 
+    static Map<String, UUID> playerNames = new HashMap<>();
     static Map<UUID, Float> playerList = new HashMap<>();
     static ArrayList<ServerPlayer> onlineList = new ArrayList<>();
     static ExecutorService es = Executors.newSingleThreadExecutor();
@@ -49,6 +50,7 @@ public class Limited_life_v2 implements ModInitializer {
     public void onInitialize() {
         Yaml yaml = new Yaml();
         Path dataPath = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID + "/data.yml");
+        Path namePath = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID + "/names.yml");
         Path path = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
         CreateDirectoryIfNotExists(path);
         File configFile = path.resolve("config.yml").toFile();
@@ -95,6 +97,19 @@ public class Limited_life_v2 implements ModInitializer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+            Yaml yaml3 = new Yaml();
+            Map<String, String> nameData = new HashMap<>();
+            for (String name : playerNames.keySet()) {
+                nameData.put(name, playerNames.get(name).toString());
+            }
+            playerNames.clear();
+            try {
+                FileWriter writer = new FileWriter(namePath.toFile());
+                yaml3.dump(nameData, writer);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> boogeymanCommand.register(dispatcher, config));
@@ -136,6 +151,9 @@ public class Limited_life_v2 implements ModInitializer {
             } else {
                 playerList.put(p.getUUID(), config.numbers.startTime);
             }
+        }
+        if(!playerNames.containsKey(p.getPlainTextName())){
+            playerNames.put(p.getPlainTextName(), p.getUUID());
         }
         onlineList.add(p);
     }
