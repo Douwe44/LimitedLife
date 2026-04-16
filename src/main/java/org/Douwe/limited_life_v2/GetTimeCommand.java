@@ -67,6 +67,16 @@ public class GetTimeCommand {
                                                             return 1;
                                                         })
                                         )
+                                        .then(literal("allPlayers").executes(ctx -> {
+                                            for(String playername : Limited_life_v2.playerNames.keySet()){
+                                                UUID player = Limited_life_v2.playerNames.get(playername);
+                                                String time = Limited_life_v2.secToTime((int) Limited_life_v2.getPlayerTimeLeft(player));
+                                                ctx.getSource().getPlayer().sendSystemMessage(Component.literal(playername +  "'s time: "+ time));
+
+                                            }
+                                            return 1;
+                                                })
+                                        )
                         )
         );
     }

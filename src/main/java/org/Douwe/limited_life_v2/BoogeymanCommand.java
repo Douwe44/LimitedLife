@@ -133,8 +133,8 @@ public class BoogeymanCommand {
                         new java.util.TimerTask() {
                             public void run() {
                                 p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
-                                p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("NOT The Boogeyman").withStyle(ChatFormatting.GREEN)));
-                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("")));
+                                p.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ").withStyle(ChatFormatting.GREEN)));
+                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("NOT The Boogeyman").withStyle(ChatFormatting.GREEN)));
                             }
                         },10000
                 );

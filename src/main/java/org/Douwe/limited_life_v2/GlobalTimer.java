@@ -24,10 +24,15 @@ public class GlobalTimer {
         this.config = config;
         Timer timer = new Timer();
 
+
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                if (Limited_life_v2.currentGlobalTimer == null) {this.cancel(); return;}
+
+                if (Limited_life_v2.currentGlobalTimer == null) {this.cancel();
+
+                    return;}
+
                 for(UUID id : Limited_life_v2.playerList.keySet()) {
                     if(activeTimerList.contains(id)) {
                         float timeLeft = Limited_life_v2.playerList.get(id);
@@ -48,6 +53,7 @@ public class GlobalTimer {
                                 activeTimerList.remove(id);
                                 p.setGameMode(GameType.SPECTATOR);//force spectator
                             } else {
+
                                 Limited_life_v2.playerList.replace(id, timeLeft -1);
                                 if(config.enable.showTimeToPlayer){
                                     p.sendSystemMessage(Component.literal(Limited_life_v2.secToTime((int) timeLeft)), true);//niet in orgineel
@@ -58,7 +64,9 @@ public class GlobalTimer {
                         }
                     }
                 }
+
             }
+
         };
         timer.scheduleAtFixedRate(task, 0, 1000);
     }
