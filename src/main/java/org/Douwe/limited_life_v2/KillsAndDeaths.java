@@ -23,6 +23,7 @@ public class KillsAndDeaths {
             timeLeft = Limited_life_v2.playerList.get(killer.getUUID());
             Limited_life_v2.playerList.replace(killer.getUUID(), timeLeft + config.numbers.killReward);
             if(BoogeymanCommand.boogeyList.contains(killer.getUUID())) {
+                timeLeft = Limited_life_v2.playerList.get(killer.getUUID());
                 Limited_life_v2.playerList.replace(killer.getUUID(), timeLeft + config.numbers.extraBoogeyReward);
                 killer.connection.send(new ClientboundSetTitleTextPacket(Component.literal("YOU ARE CURED").withStyle(ChatFormatting.GREEN)));
                 BoogeymanCommand.boogeyList.remove(killer.getUUID());

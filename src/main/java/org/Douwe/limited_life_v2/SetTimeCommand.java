@@ -12,6 +12,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
@@ -27,18 +28,18 @@ public class SetTimeCommand {
         dispatcher.register(literal("LimitedLife")
                 .then(literal("setTimeOf")
                         .requires(Permissions.require("limited_life_v2.command", 4))
-                        .then(argument("player", EntityArgument.player())
-                                .then(Commands.argument("player", StringArgumentType.string()).suggests(new SuggestionProvider<CommandSourceStack>() {
-                                                    @Override
-                                                    public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> commandContext, SuggestionsBuilder suggestionsBuilder) throws CommandSyntaxException {
-                                                        CommandSourceStack source = commandContext.getSource();
-                                                        Collection<String> names = Limited_life_v2.playerNames.keySet();
-                                                        for(String playerName : names) {
-                                                            suggestionsBuilder.suggest(playerName);
-                                                        }
-                                                        return suggestionsBuilder.buildFuture();
-                                                    }
-                                                })
+                        //.then(argument("player", EntityArgument.player())
+                        .then(Commands.argument("player", StringArgumentType.string()).suggests(new SuggestionProvider<CommandSourceStack>() {
+                            @Override
+                                public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> commandContext, SuggestionsBuilder suggestionsBuilder) throws CommandSyntaxException {
+                                    CommandSourceStack source = commandContext.getSource();
+                                    Collection<String> names = Limited_life_v2.playerNames.keySet();
+                                    for(String playerName : names) {
+                                        suggestionsBuilder.suggest(playerName);
+                                    }
+                                    return suggestionsBuilder.buildFuture();
+                                }
+                            }).then(Commands.argument("time", FloatArgumentType.floatArg())
                                         .executes(ctx -> {
                                             String name  =
                                                     StringArgumentType.getString(ctx, "player");
@@ -47,10 +48,14 @@ public class SetTimeCommand {
                                                     FloatArgumentType.getFloat(ctx, "time");
 
                                             playerList.replace(player, time);
+                                            String timeInHours = Limited_life_v2.secToTime(time.intValue());
+                                            ctx.getSource().getPlayer().sendSystemMessage(Component.literal("you have set " + name +  "'s time to "+ timeInHours));
+
                                             return 1;
                                         })
                                 )
                         )
+                )
                         .then(literal("allPlayers")
                                 .then(Commands.argument("time", FloatArgumentType.floatArg())
                                         .executes(ctx -> {
@@ -59,11 +64,13 @@ public class SetTimeCommand {
                                             for (UUID id : playerList.keySet()){
                                                 playerList.replace(id, time);
                                             }
+                                            String timeInHours = Limited_life_v2.secToTime(time.intValue());
+                                            ctx.getSource().getPlayer().sendSystemMessage(Component.literal("you have set everyones time to:"+ timeInHours));
+
                                             return 1;
                                         })
                                 )
                         )
-                )
         );
     }
 }

@@ -69,6 +69,7 @@ public class Limited_life_v2 implements ModInitializer {
                 try {
                     FileReader reader = new FileReader(dataPath.toFile());
                     Map<String, Double> storage = yaml.load(reader);
+                    playerList.clear();
                     for(String idString : storage.keySet()){
                         UUID id = UUID.fromString(idString);
                         playerList.put(id, storage.get(idString).floatValue());
@@ -81,6 +82,7 @@ public class Limited_life_v2 implements ModInitializer {
                 try {
                     FileReader reader = new FileReader(namePath.toFile());
                     Map<String, String> storage = yaml.load(reader);
+                    playerNames.clear();
                     for(String name : storage.keySet()){
                         UUID id = UUID.fromString(storage.get(name));
                         playerNames.put(name, id);
@@ -98,38 +100,38 @@ public class Limited_life_v2 implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
 
                 LOGGER.info("hij is aan het saven");
-                LOGGER.info("de size van de playerlijst" + playerList.size());
-//            CreateDirectoryIfNotExists(path);
-//            Yaml yaml2 = new Yaml();
-//            Map<String, Float> data = new HashMap<>();
-//            for (UUID id : playerList.keySet()) {
-//                data.put(id.toString(), playerList.get(id));
-//            }
-//            playerList.clear();
-//            try {
-//                FileWriter writer = new FileWriter(dataPath.toFile());
-//                yaml2.dump(data, writer);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            Yaml yaml3 = new Yaml();
-//            Map<String, String> nameData = new HashMap<>();
-//            for (String name : playerNames.keySet()) {
-//                nameData.put(name, playerNames.get(name).toString());
-//            }
-//            playerNames.clear();
-//            try {
-//                FileWriter writer = new FileWriter(namePath.toFile());
-//                yaml3.dump(nameData, writer);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
+                LOGGER.info("de size van de playerlijst: " + playerList.size());
+            CreateDirectoryIfNotExists(path);
+            Yaml yaml2 = new Yaml();
+            Map<String, Float> data = new HashMap<>();
+            for (UUID id : playerList.keySet()) {
+                data.put(id.toString(), playerList.get(id));
+            }
+            //playerList.clear();
+            try {
+                FileWriter writer = new FileWriter(dataPath.toFile());
+                yaml2.dump(data, writer);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            Yaml yaml3 = new Yaml();
+            Map<String, String> nameData = new HashMap<>();
+            for (String name : playerNames.keySet()) {
+                nameData.put(name, playerNames.get(name).toString());
+            }
+            //playerNames.clear();
+            try {
+                FileWriter writer = new FileWriter(namePath.toFile());
+                yaml3.dump(nameData, writer);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> boogeymanCommand.register(dispatcher, config));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> giveKillCommand.register(dispatcher, config));
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> endSessionCommand.register(dispatcher, config, currentGlobalTimer));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> endSessionCommand.register(dispatcher, config));
         if(config.enable.testFeature) {
             CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> getTimeCommand.register2(dispatcher));
         } else {
