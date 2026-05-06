@@ -55,7 +55,7 @@ public class SetTimeCommand {
                                         })
                                 )
                         )
-                )
+
                         .then(literal("allPlayers")
                                 .then(Commands.argument("time", FloatArgumentType.floatArg())
                                         .executes(ctx -> {
@@ -71,6 +71,7 @@ public class SetTimeCommand {
                                         })
                                 )
                         )
+                )
         );
     }
 }

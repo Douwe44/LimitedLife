@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static net.minecraft.commands.Commands.literal;
+import static org.Douwe.limited_life_v2.Limited_life_v2.playerList;
 //import static org.Douwe.limited_life_v2.Limited_life_v2.*;
 
 public class EndSessionCommand {
@@ -56,7 +57,7 @@ public class EndSessionCommand {
                 new java.util.Timer().schedule(
                         new java.util.TimerTask() {
                             public void run() {
-                                //p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
+                                p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
                                 p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("YOU HAVE FAILED").withStyle(ChatFormatting.RED)));
                                 p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(" ").withStyle(ChatFormatting.RED)));
                                 p.sendSystemMessage(Component.literal(""), true);
@@ -67,36 +68,39 @@ public class EndSessionCommand {
                 new java.util.Timer().schedule(
                         new java.util.TimerTask() {
                             public void run() {
-                                //p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
-                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("YOU SHALL BE PUNISHED").withStyle(ChatFormatting.RED)));
-                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("")));
+                                p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
+                                p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("YOU HAVE FAILED").withStyle(ChatFormatting.RED)));
+                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("YOU SHALL BE PUNISHED")));
                                 p.sendSystemMessage(Component.literal(""), true);
 
 
                             }
                         }, 2500
                 );
-                UUID id = p.getUUID();
-                float timeLeft = Limited_life_v2.playerList.get(id);
-                if(timeLeft < config.numbers.turnRed) {
-                    if(config.enable.killRedBoogey) {
-                        Limited_life_v2.playerList.replace(id, 0f);
-                    } else {
-                        Limited_life_v2.playerList.replace(id, config.numbers.deathPenalty);
-                    }
-                } else if(timeLeft < config.numbers.turnYellow) {
-                    Limited_life_v2.playerList.replace(id, config.numbers.turnRed);
-                } else {
-                    Limited_life_v2.playerList.replace(id, config.numbers.turnYellow);
-                }
-                BoogeymanCommand.boogeyList.remove(p.getUUID());
             }
         }
+        for(UUID id : BoogeymanCommand.boogeyList)   {//will this for loop work?
+            float timeLeft = playerList.get(id);
+            if (timeLeft < config.numbers.turnRed) {
+                if (config.enable.killRedBoogey || timeLeft <= config.numbers.deathPenalty) {
+                    playerList.replace(id, 0f);
+                } else {
+                    playerList.replace(id, config.numbers.deathPenalty);
+                }
+            } else if (timeLeft < config.numbers.turnYellow) {
+                playerList.replace(id, config.numbers.turnRed);
+            } else {
+                playerList.replace(id, config.numbers.turnYellow);
+            }
+
+        }
+        BoogeymanCommand.boogeyList.clear();
+
         Limited_life_v2.timerIsRunning = false;
         new java.util.Timer().schedule(
                 new java.util.TimerTask() {
                     public void run() {
-                        source.getServer().getPlayerList().removeAll();//kick players
+                        //source.getServer().getPlayerList().removeAll();//kick players
                         for(UUID player : Limited_life_v2.playerList.keySet()) {
                             Limited_life_v2.currentGlobalTimer.pausePlayerTimer(player);
                         }
@@ -128,9 +132,10 @@ public class EndSessionCommand {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
+                        source.getPlayer().sendSystemMessage(Component.literal("send them away"));
                         //source.getServer().stop(false); //true or false?, neem aan dat true beter is
                     }
-                },10000
+                },5000
         );
     }
     private void CreateDirectoryIfNotExists(Path folder) {

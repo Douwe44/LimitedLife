@@ -33,7 +33,7 @@ public class EndBoogeyCommand {
                 new java.util.Timer().schedule(
                         new java.util.TimerTask() {
                             public void run() {
-                                //p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
+                                p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
                                 p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("YOU HAVE FAILED").withStyle(ChatFormatting.RED)));
                                 p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(" ").withStyle(ChatFormatting.RED)));
                                 p.sendSystemMessage(Component.literal(""), true);
@@ -44,19 +44,21 @@ public class EndBoogeyCommand {
                 new java.util.Timer().schedule(
                         new java.util.TimerTask() {
                             public void run() {
-                                //p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
-                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("YOU SHALL BE PUNISHED").withStyle(ChatFormatting.RED)));
-                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("")));
+                                p.connection.send(new ClientboundSetTitlesAnimationPacket(2, 30, 10));
+                                p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("YOU HAVE FAILED").withStyle(ChatFormatting.RED)));
+                                p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("YOU SHALL BE PUNISHED")));
                                 p.sendSystemMessage(Component.literal(""), true);
 
 
                             }
                         }, 1500
                 );
-                UUID id = p.getUUID();
+            }
+        }
+        for(UUID id : BoogeymanCommand.boogeyList)   {//will this for loop work?
                 float timeLeft = playerList.get(id);
                 if (timeLeft < config.numbers.turnRed) {
-                    if (config.enable.killRedBoogey) {
+                    if (config.enable.killRedBoogey || timeLeft <= config.numbers.deathPenalty) {
                         playerList.replace(id, 0f);
                     } else {
                         playerList.replace(id, config.numbers.deathPenalty);
@@ -66,8 +68,9 @@ public class EndBoogeyCommand {
                 } else {
                     playerList.replace(id, config.numbers.turnYellow);
                 }
-                BoogeymanCommand.boogeyList.remove(p.getUUID());
-            }
+
         }
+        BoogeymanCommand.boogeyList.clear();
     }
 }
+

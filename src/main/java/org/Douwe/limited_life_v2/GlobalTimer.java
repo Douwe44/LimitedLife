@@ -33,7 +33,7 @@ public class GlobalTimer {
 
                     return;}
 
-                for(UUID id : Limited_life_v2.playerList.keySet()) {
+                for(UUID id : Limited_life_v2.playerList.keySet()) {//change this for active list??
                     if(activeTimerList.contains(id)) {
                         float timeLeft = Limited_life_v2.playerList.get(id);
                         ServerPlayer p = Limited_life_v2.s.getPlayerList().getPlayer(id);
